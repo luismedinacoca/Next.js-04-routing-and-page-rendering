@@ -111,6 +111,182 @@ npm run dev
 
 
 
+<br>
+
+## 🔧 137. Lesson 137 — *Exercise Solution - Part 1*
+
+[🧳 Section 04: Routing & Page Rendering - Deep Dive](#section-04---routing--page-rendering---deep-dive)
+
+### 📑 Table of Contents:
+- [137. Lesson 137 — *Exercise Solution - Part 1*](#-137-lesson-137--exercise-solution---part-1)
+- [137.1 Context](#-1371-context)
+- [137.2 Updating code/theory according the context](#-1372-updating-codetheory-according-the-context)
+  - [137.2.1 Create News List Page](#13721-create-news-list-page)
+  - [137.2.2 Create News Detail Page with Dynamic Route](#13722-create-news-detail-page-with-dynamic-route)
+  - [137.2.3 Add Links to News Items](#13723-add-links-to-news-items)
+  - [137.2.4 Extract and Display Dynamic ID from Params](#13724-extract-and-display-dynamic-id-from-params)
+- [137.3 Issues](#-1373-issues)
+- [137.4 Pending Fixes (TODO)](#-1374-pending-fixes-todo)
+
+### 🧠 137.1 Context:
+
+This lesson implements **Part 1** of the exercise from Lesson 136: building a News section with a list page (`/news`) and dynamic detail pages (`/news/[id]`). It introduces Next.js App Router concepts for nested routes and client-side navigation.
+
+**Key Concepts:**
+1. **Nested routes** — `app/news/page.js` serves `/news`, and `app/news/[id]/page.js` serves `/news/first-news`, `/news/second-news`, etc. Folder structure defines URL hierarchy.
+2. **Dynamic route segments** — The `[id]` folder creates a dynamic segment; any value after `/news/` is captured as `params.id`.
+3. **`Link` component** — Next.js `Link` from `next/link` enables client-side navigation without full page reloads; prefer it over `<a href>` for internal routes.
+4. **Page props** — In Next.js App Router, page components receive `params` (and optionally `searchParams`) as props; `params` contains the values for dynamic segments.
+
+**Advantages:**
+- File-based routing keeps routes and components aligned; no manual route configuration
+- `Link` prefetches linked pages for faster perceived performance
+- Dynamic segments scale to any number of news items without extra files
+- Clear separation between list (NewsPage) and detail (NewsDetailPage) components
+
+**Disadvantages/Gotchas:**
+- In Next.js 15+, `params` becomes a Promise and must be awaited (this project uses Next.js 14 where it is synchronous)
+- Incorrect URL structure (e.g. `/first-news` instead of `/news/first-news`) leads to 404s
+- `Link` requires `href` to be an internal path; external URLs need `<a>` with `target="_blank"`
+
+**When to Consider Alternatives:**
+- Use `useRouter().push()` for programmatic navigation (e.g. after form submit)
+- Use `generateStaticParams` for static generation of known dynamic routes
+- Add loading/error boundaries for better UX on slow or failing routes
+
+---
+
+### ⚙️ 137.2 Updating code/theory according the context:
+
+#### **Summary**
+- This section builds the News feature in four steps: a basic list page, a dynamic detail page, Link-based navigation between them, and displaying the dynamic ID.
+- Subsections 137.2.1–137.2.4 progress from static pages to dynamic, linked content.
+- The goal is to demonstrate nested routes, dynamic segments, and the `Link` component in a single flow.
+
+#### 137.2.1 Create News List Page
+
+**Subsection Summary**
+- Creates the News list page at `/news` using `app/news/page.js`.
+- Renders a simple heading; the screenshot shows the initial state before adding links.
+- Establishes the parent route for the News section.
+
+```js
+/* app/news/page.js */
+export default function NewsPage(){
+  return(
+    <>
+      <h1>News Page</h1>
+    </>
+  )
+}
+```
+
+* Go to the [following URL](http://localhost:3000/news)
+
+![News Page](../img/section04-lecture137-001.png)
+
+#### 137.2.2 Create News Detail Page with Dynamic Route
+
+**Subsection Summary**
+- Creates a dynamic route with `app/news/[id]/page.js` so URLs like `/news/first-news` map to this component.
+- Initially shows a static "News Detail Page" heading; the screenshot illustrates the placeholder before params are used.
+- Demonstrates the folder naming convention `[id]` for dynamic segments in the App Router.
+
+```jsx
+/* app/news/[id]/page.js */
+export default function NewsDetailPage(){
+  return (
+    <>
+      <h1>News Detail Page</h1>
+    </>
+  );
+}
+```
+
+![News Detail Page](../img/section04-lecture137-002.png)
+
+#### 137.2.3 Add Links to News Items
+
+**Subsection Summary**
+- Imports `Link` from `next/link` and adds three list items linking to `/news/first-news`, `/news/second-news`, and `/news/third-news`.
+- Enables client-side navigation from the list page to each detail page without full reloads.
+- Uses the Next.js `Link` component for optimal prefetching and routing behaviour.
+
+```jsx
+/* app/news/page.js */
+import Link from "next/link";                                       // 👈🏽 ✅ (1)
+
+export default function NewsPage(){
+  return(
+    <>
+      <h1>News Page</h1>
+      <ul>
+        <li>
+          <Link href="/news/first-news">First News</Link>           {/* 👈🏽 ✅ (2) */}
+        </li>
+        <li>
+          <Link href="/news/second-news">Second News</Link>         {/* 👈🏽 ✅ (2) */}
+        </li>
+        <li>
+          <Link href="/news/third-news">Third News</Link>           {/* 👈🏽 ✅ (2) */}
+        </li>
+      </ul>
+    </>
+  )
+}
+```
+
+#### 137.2.4 Extract and Display Dynamic ID from Params
+
+**Subsection Summary**
+- Destructures `params` from the page props and extracts `id` to display the current segment value.
+- Shows how the URL segment (e.g. `first-news`) is passed into the component and rendered.
+- The screenshot illustrates the detail page with the dynamic ID displayed; users reach it via the links in 137.2.3.
+
+```jsx
+/* app/news/[id]/page.js */
+export default function NewsDetailPage({ params}){
+  const { id } = params;
+  return (
+    <>
+      <h1>News Detail Page</h1>
+      <p>News ID: {id}</p>
+    </>
+  );
+}
+```
+
+Visit the following URLs:
+* [first-news](http://localhost:3000/news/first-news)
+* [second-news](http://localhost:3000/news/second-news)
+* [third-news](http://localhost:3000/news/third-news)
+
+![new detail page from inside of them](../img/section04-lecture137-003.png)
+
+### 🐞 137.3 Issues:
+
+- Incorrect URLs in documentation: the lesson previously linked to `/first-news`, `/second-news`, and `/third-news` instead of the correct nested paths `/news/first-news`, etc.
+- Minor formatting: inconsistent spacing around `params` in function signature (`{ params}` vs `{ params }`).
+- Missing screenshot assets: image references may break if the `img/` folder or files do not exist.
+
+| Issue | Status | Log/Error |
+|---|---|---|
+| Wrong URLs for news detail pages (`/first-news` vs `/news/first-news`) | ✅ Fixed | `docs/LECTURE_STEPS.md:137.2.4` — Updated to correct nested paths |
+| Inconsistent spacing in `{ params}` | ℹ️ Low Priority | `app/news/[id]/page.js:1` — Consider `{ params }` for consistency |
+| Missing screenshots `section04-lecture137-001.png`, `-002.png`, `-003.png` | ⚠️ Identified | `img/` — Image paths referenced but assets may be missing |
+
+### 🧱 137.4 Pending Fixes (TODO)
+
+- [ ] Add `img/section04-lecture137-001.png` screenshot of the News list page at `http://localhost:3000/news`
+- [ ] Add `img/section04-lecture137-002.png` screenshot of the News detail page placeholder
+- [ ] Add `img/section04-lecture137-003.png` screenshot of the News detail page showing the dynamic ID
+- [ ] Ensure `img/` directory exists under project root (`docs/../img` resolves correctly)
+- [ ] Optional: normalise spacing in `app/news/[id]/page.js` to `{ params }` if lint rules require it
+
+[↑ top — 137. Lesson 137 — *Exercise Solution - Part 1*](#-137-lesson-137--exercise-solution---part-1)
+
+
+
 
 
 
