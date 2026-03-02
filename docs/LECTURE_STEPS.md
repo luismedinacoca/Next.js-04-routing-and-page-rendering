@@ -286,6 +286,149 @@ Visit the following URLs:
 [↑ top — 137. Lesson 137 — *Exercise Solution - Part 1*](#-137-lesson-137--exercise-solution---part-1)
 
 
+<br>
+
+## 🔧 138. Lesson 138 — *Exercise Solution - Part 2*
+
+[🧳 Section 04: Routing & Page Rendering - Deep Dive](#section-04---routing--page-rendering---deep-dive)
+
+### 📑 Table of Contents:
+- [138. Lesson 138 — *Exercise Solution - Part 2*](#-138-lesson-138--exercise-solution---part-2)
+- [138.1 Context](#-1381-context)
+- [138.2 Updating code/theory according the context](#-1382-updating-codetheory-according-the-context)
+  - [138.2.1 Review Colocation Documentation](#13821-review-colocation-documentation)
+  - [138.2.2 Create MainHeader Component](#13822-create-mainheader-component)
+  - [138.2.3 Integrate MainHeader into Root Layout](#13823-integrate-mainheader-into-root-layout)
+  - [138.2.4 Visual Result Across Pages](#13824-visual-result-across-pages)
+- [138.3 Issues](#-1383-issues)
+- [138.4 Pending Fixes (TODO)](#-1384-pending-fixes-todo)
+
+### 🧠 138.1 Context:
+
+This lesson completes **Part 2** of the exercise by adding a shared navigation header across all pages. It introduces **component colocation**, the root layout pattern, and how to structure reusable UI outside the `app` directory while keeping route segments lean.
+
+**Key Concepts:**
+1. **Colocation** — Next.js allows placing components, utilities, or data files inside route folders (`app/news/components/`, etc.) without them becoming routes. Only `page.js` and `route.js` expose public URLs; other files are implementation details.
+2. **Root layout** — `app/layout.js` wraps every page in the app. Components imported here (e.g. `MainHeader`) render on every route without duplication.
+3. **Path alias `@/`** — The `@/*` alias in `jsconfig.json` maps to the project root, enabling clean imports like `@/components/main-header` instead of `../../components/main-header`.
+4. **Shared navigation** — A header with `Link` components provides consistent navigation (Home, News) across `/`, `/news`, and `/news/[id]`.
+
+**Advantages:**
+- Single header definition; updates propagate to all pages automatically
+- Root layout ensures consistent shell (header + main content) without per-page imports
+- Colocation keeps route-specific components close to their routes when needed
+- `@/` alias improves readability and simplifies refactoring
+
+**Disadvantages/Gotchas:**
+- Root layout is mandatory in App Router; it cannot be skipped
+- Components outside `app` (e.g. `components/main-header.js`) require correct path resolution; misconfigured `paths` in `jsconfig.json` can break imports
+- Shared header re-renders on navigation; use React Server Components or memoization if performance matters for complex headers
+
+**When to Consider Alternatives:**
+- Use nested layouts (`app/news/layout.js`) for section-specific headers or sidebars
+- Use route groups `(marketing)` or `(shop)` to apply different root layouts to different app sections
+- Colocate components inside `app/` (e.g. `app/_components/`) if the team prefers keeping everything under the routing directory
+
+---
+
+### ⚙️ 138.2 Updating code/theory according the context:
+
+#### **Summary**
+- This section adds a global navigation header by creating a `MainHeader` component, understanding Next.js colocation, and wiring it into the root layout.
+- Subsections 138.2.1–138.2.4 progress from colocation theory to component creation, layout integration, and the visual outcome across routes.
+- The goal is to complete the exercise with shared navigation while reinforcing layout and file organization concepts.
+
+#### 138.2.1 Review Colocation Documentation
+
+**Subsection Summary**
+- Links to the official Next.js documentation explaining that files inside route segments (e.g. components, utils) do not become routable unless they are `page.js` or `route.js`.
+- Clarifies that colocation is safe and supported; only the content returned by page/route files is sent to the client.
+- Provides the theoretical basis for placing shared or route-specific code either inside or outside `app/`.
+
+* Review this docs - [This means that project files can be safely colocated](https://nextjs.org/docs/app/getting-started/project-structure#colocation)
+
+#### 138.2.2 Create MainHeader Component
+
+**Subsection Summary**
+- Creates a reusable `MainHeader` component in `components/main-header.js` with two `Link` items: Home (`/`) and News (`/news`).
+- Uses the Next.js `Link` component for client-side navigation; the header renders a semantic `<header>` with an unordered list.
+- Establishes the shared navigation UI that will appear on every page when integrated into the root layout.
+
+```jsx
+/* components/main-header.js */
+import Link from "next/link";
+
+export default function MainHeader(){
+  return (
+    <header>
+      <ul>
+        <li>
+          <Link href="/">Home</Link>
+        </li>
+        <li>
+          <Link href="/news">News</Link>
+        </li>
+      </ul>
+    </header>
+  )
+}
+```
+
+#### 138.2.3 Integrate `MainHeader` into `Root Layout`
+
+**Subsection Summary**
+- Imports `MainHeader` from `@/components/main-header` and renders it in `app/layout.js` above `{children}`.
+- Ensures the header appears on the home page, the news list, and all news detail pages without per-page imports.
+- Demonstrates the root layout pattern: shared shell (header) wrapping dynamic page content (`children`).
+
+```jsx
+/* app/layout.js */
+import "./globals.css";
+import MainHeader from "@/components/main-header";                  // 👈🏽 ✅ (1)
+
+export const metadata = {
+  title: "Next.js Page Routing & Rendering",
+  description: "Learn how to route to different pages.",
+};
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <MainHeader />                                                {/* 👈🏽 ✅ (2) */}
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+#### 138.2.4 Visual Result Across Pages
+
+**Subsection Summary**
+- The screenshot illustrates the `MainHeader` (Home and News links) visible on the home page, news list page, and news detail page.
+- Confirms that the root layout integration works correctly across all routes.
+- If the image is missing, the user can verify by navigating to `/`, `/news`, and `/news/first-news` in the browser.
+
+![main-header in home/news/news-id pages](../img/section04-lecture138-001.png)
+
+### 🐞 138.3 Issues:
+
+| Issue | Status | Log/Error |
+|---|---|---|
+| Missing screenshot `section04-lecture138-001.png` | ⚠️ Identified | `img/section04-lecture138-001.png` — Image path referenced but asset may be missing |
+| Header lacks semantic `<nav>` element | ℹ️ Low Priority | `components/main-header.js:4-16` — Consider wrapping links in `<nav aria-label="Main navigation">` |
+| No aria-label for navigation | ℹ️ Low Priority | `components/main-header.js` — Improves screen reader accessibility |
+
+### 🧱 138.4 Pending Fixes (TODO)
+
+- [ ] Add `img/section04-lecture138-001.png` screenshot showing the MainHeader on home, `/news`, and a news detail page (or update path if image lives elsewhere)
+- [ ] Ensure `img/` directory exists under project root
+- [ ] Optional: Wrap the links in `components/main-header.js` with `<nav aria-label="Main navigation">` for better accessibility (`components/main-header.js:4-16`)
+
+[↑ top — 138. Lesson 138 — *Exercise Solution - Part 2*](#-138-lesson-138--exercise-solution---part-2)
+
+
 
 
 
