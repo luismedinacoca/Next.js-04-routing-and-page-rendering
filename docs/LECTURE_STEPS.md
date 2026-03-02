@@ -434,11 +434,66 @@ export default function RootLayout({ children }) {
 
 ## 🔧 139. Lesson 139 — *App Styling & Using Dummy Data*
 
+[🧳 Section 04: Routing & Page Rendering - Deep Dive](#section-04---routing--page-rendering---deep-dive)
+
+### 📑 Table of Contents:
+- [139. Lesson 139 — *App Styling & Using Dummy Data*](#-139-lesson-139--app-styling--using-dummy-data)
+- [139.1 Context](#-1391-context)
+- [139.2 Updating code/theory according the context](#-1392-updating-codetheory-according-the-context)
+  - [139.2.1 Style MainHeader with Logo and Nav Structure](#13921-style-mainheader-with-logo-and-nav-structure)
+  - [139.2.2 Wrap Content in Page Container](#13922-wrap-content-in-page-container)
+  - [139.2.3 Add news-list Class for Grid Layout](#13923-add-news-list-class-for-grid-layout)
+  - [139.2.4 Create Dummy Data File](#13924-create-dummy-data-file)
+  - [139.2.5 Map Dummy Data to News List with Images](#13925-map-dummy-data-to-news-list-with-images)
+  - [139.2.6 Display Full News Article by Slug](#13926-display-full-news-article-by-slug)
+- [139.3 Issues](#-1393-issues)
+- [139.4 Pending Fixes (TODO)](#-1394-pending-fixes-todo)
+
 ### 🧠 139.1 Context:
+
+This lesson applies **global styling** and introduces **dummy data** to power the News feature. It transforms the plain layout into a visually coherent app with a styled header, grid-based news list, and full article detail pages driven by a local data module.
+
+**Key Concepts:**
+1. **CSS-driven layout** — `globals.css` defines styles for `#main-header`, `#page`, `.news-list`, and `.news-article`; IDs and classes are applied via `id` and `className` props in components.
+2. **Dummy data module** — A `dummy-news.js` file exports a `DUMMY_NEWS` array of objects (id, slug, title, image, date, content); this data feeds both the list and detail pages without a backend.
+3. **Dynamic route by slug** — The route segment `[slug]` (replacing `[id]`) aligns with SEO-friendly URLs; each news item is accessed via `/news/{slug}` (e.g. `/news/couple-cooking`).
+4. **Static assets** — Images live in `public/images/news/`; Next.js serves them at `/images/news/{filename}` without importing.
+
+**Advantages:**
+- Dummy data allows development and testing without a database or API
+- Global CSS keeps styling centralized and easy to maintain
+- Slug-based URLs are readable and SEO-friendly
+- The `#page` wrapper provides consistent max-width and centering across all pages
+
+**Disadvantages/Gotchas:**
+- `newsItem` can be `undefined` when a slug does not match any entry; the detail page will throw if `newsItem` is not guarded
+- HTML typo: `dataTime` should be `dateTime` (valid HTML attribute)
+- Images must exist in `public/images/news/`; missing files result in broken image placeholders
+- Dummy data is imported at build time; no runtime fetching or caching
+
+**When to Consider Alternatives:**
+- Use `notFound()` for invalid slugs to return a 404 page instead of crashing
+- Replace dummy data with an API (e.g. `fetch` or a CMS) for production
+- Use Next.js `Image` component for optimized loading and responsive images
+- Move to CSS modules or Tailwind if you need component-scoped styles
+
+---
 
 ### ⚙️ 139.2 Updating code/theory according the context:
 
-#### 139.2.1
+#### **Summary**
+- This section adds visual styling to the header and layout, then replaces hardcoded links with data-driven news items from a dummy module.
+- Subsections 139.2.1–139.2.3 focus on styling (MainHeader, page wrapper, news list grid).
+- Subsections 139.2.4–139.2.6 focus on data: creating `dummy-news.js`, mapping it to the list page, and rendering full article content on the detail page.
+- The goal is a complete, styled News flow without external data sources.
+
+#### 139.2.1 Style MainHeader with Logo and Nav Structure
+
+**Subsection Summary**
+- Restructures `MainHeader` with semantic `#main-header`, `#logo`, and `<nav>` elements for clearer styling targets.
+- The logo links to `/` and displays "NextNews"; the nav contains the News link.
+- CSS in `globals.css` targets `#main-header` for flex layout and `#logo` for typography; the screenshot shows the styled header.
+
 ```jsx
 /* components/main-header.js */
 import Link from "next/link";
@@ -462,7 +517,13 @@ export default function MainHeader() {
 
 ![simple styling - main-header](../img/section04-lecture139-001.png)
 
-#### 139.2.2
+#### 139.2.2 Wrap Content in Page Container
+
+**Subsection Summary**
+- Wraps `MainHeader` and `{children}` in a `<div id="page">` inside the root layout.
+- The `#page` CSS rule in `globals.css` provides max-width (`60rem`), horizontal centering, and vertical margin.
+- Ensures all pages share a consistent content width and spacing; the screenshot illustrates the constrained layout.
+
 ```jsx
 /* app/layout.js */
 import "./globals.css";
@@ -489,7 +550,13 @@ export default function RootLayout({ children }) {
 
 ![adding styling - main-header](../img/section04-lecture139-002.png)
 
-#### 139.2.3
+#### 139.2.3 Add news-list Class for Grid Layout
+
+**Subsection Summary**
+- Adds `className="news-list"` to the `<ul>` on the News list page so it receives the CSS grid styles.
+- The `.news-list` rule in `globals.css` uses `grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr))` for a responsive card grid.
+- The screenshot shows the initial styled list before switching to dummy data.
+
 ```jsx
 /* app/news/page.js */
 import Link from "next/link";
@@ -516,7 +583,13 @@ export default function NewsPage(){
 
 ![News Detail Page with style](../img/section04-lecture139-003.png)
 
-#### 139.2.4
+#### 139.2.4 Create Dummy Data File
+
+**Subsection Summary**
+- Creates `dummy-news.js` at the project root exporting a `DUMMY_NEWS` array.
+- Each item has `id`, `slug`, `title`, `image`, `date`, and `content`; slugs are used for URLs and routing.
+- Replaces hardcoded links with a single source of truth; can be swapped later for an API or database.
+- The GitHub repo link points to the canonical dummy data file from the course resources.
 
 [dummy-news file repo](https://github.com/mschwarzmueller/nextjs-complete-guide-course-resources/blob/main/code/03-routing-rendering/04-not-found/dummy-news.js)
 
@@ -567,7 +640,14 @@ export const DUMMY_NEWS = [
 ];
 ```
 
-#### 139.2.5
+#### 139.2.5 Map Dummy Data to News List with Images
+
+**Subsection Summary**
+- Imports `DUMMY_NEWS` from `@/dummy-news` and maps over it to render list items.
+- Each `<li>` links to `/news/${newsItem.slug}` and displays the item's image (from `/images/news/`) and title.
+- Replaces the commented hardcoded links; the grid layout styles apply to the dynamically generated cards.
+- The screenshot shows the News page with thumbnail images and titles for each article.
+
 ```jsx
 /* app/news/page.js */
 import Link from "next/link";
@@ -608,7 +688,16 @@ export default function NewsPage(){
 
 ![news Page with images](../img/section04-lecture139-004.png)
 
-#### 139.2.6
+#### 139.2.6 Display Full News Article by Slug
+
+**Subsection Summary**
+- Uses `params.slug` to find the matching news item in `DUMMY_NEWS`.
+- Renders the full article in an `<article className="news-article">` with image, title, date, and content.
+- The dynamic segment is `[slug]` (not `[id]`) to align with SEO-friendly URLs; the route folder must be `app/news/[slug]/`.
+- Note: No guard for `newsItem` when slug is invalid; consider `notFound()` for unknown slugs.
+- The HTML attribute `dataTime` is a typo; it should be `dateTime` for valid datetime semantics.
+- Example URL: [Spend more time together!](http://localhost:3000/news/couple-cooking)
+
 ```jsx
 /* app/news/[slug]/page.js */
 import { DUMMY_NEWS } from "@/dummy-news";
@@ -637,12 +726,29 @@ export default function NewsDetailPage({ params }){
 
 ### 🐞 139.3 Issues:
 
+- **HTML typo**: `dataTime` attribute is invalid; the correct HTML attribute for `<time>` is `dateTime`.
+- **Missing null guard**: When `slug` does not match any item in `DUMMY_NEWS`, `newsItem` is `undefined`; accessing `newsItem.image` or `newsItem.title` will throw a runtime error.
+- **Missing screenshot assets**: All five image references (`section04-lecture139-001.png` through `-005.png`) may not exist in the `img/` directory.
+- **Missing image files**: News images (e.g. `ai-robot.jpg`, `beaver.jpg`) must exist in `public/images/news/`; otherwise thumbnails and article images will break.
+- **Minor accessibility**: The news list images may need `loading="lazy"` for performance; the detail page `<time>` should use correct `dateTime` format (e.g. `2024-03-01`).
+
 | Issue | Status | Log/Error |
 |---|---|---|
+| Invalid `dataTime` attribute (should be `dateTime`) | ⚠️ Identified | `app/news/[slug]/page.js:14` — HTML `<time>` requires `dateTime` |
+| No guard for invalid slug; `newsItem` can be undefined | ⚠️ Identified | `app/news/[slug]/page.js:6-11` — Call `notFound()` when `!newsItem` |
+| Missing screenshots `section04-lecture139-001.png` through `-005.png` | ⚠️ Identified | `img/` — Image paths referenced but assets may be missing |
+| News images must exist in `public/images/news/` | ⚠️ Identified | `public/images/news/` — Placeholder images (ai-robot.jpg, beaver.jpg, etc.) required |
+| `<time>` dateTime format could be ISO 8601 for accessibility | ℹ️ Low Priority | `app/news/[slug]/page.js:14` — Current format `2024-03-01` is valid |
 
 ### 🧱 139.4 Pending Fixes (TODO)
 
-- [ ]
+- [ ] Add `img/section04-lecture139-001.png` through `section04-lecture139-005.png` screenshots (MainHeader styled, page wrapper, news list with style, news list with images, couple-cooking detail page)
+- [ ] Fix HTML typo in `app/news/[slug]/page.js:14`: change `dataTime` to `dateTime`
+- [ ] Add `notFound()` handling in `app/news/[slug]/page.js` when `newsItem` is undefined (import from `next/navigation`, call after `find`)
+- [ ] Ensure `public/images/news/` exists and contains placeholder images: `ai-robot.jpg`, `beaver.jpg`, `couple-cooking.jpg`, `hiking.jpg`, `landscape.jpg` (or download from course resources)
+- [ ] Ensure `img/` directory exists under project root for documentation screenshots
+
+[↑ top — 139. Lesson 139 — *App Styling & Using Dummy Data*](#-139-lesson-139--app-styling--using-dummy-data)
 
 
 

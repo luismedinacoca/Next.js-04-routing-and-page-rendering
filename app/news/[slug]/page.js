@@ -10,7 +10,7 @@ export default function NewsDetailPage({ params }){
       <header>
         <img src={`/images/news/${newsItem.image}`} alt={`${newsItem.title}`} />
         <h1>{newsItem.title}</h1>
-        <time dataTime={newsItem.date}>{newsItem.date}</time>
+        <time dateTime={newsItem.date}>{newsItem.date}</time>
         <p>{newsItem.content}</p>
       </header>
     </article>
