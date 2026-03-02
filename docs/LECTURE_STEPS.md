@@ -726,12 +726,6 @@ export default function NewsDetailPage({ params }){
 
 ### 🐞 139.3 Issues:
 
-- **HTML typo**: `dataTime` attribute is invalid; the correct HTML attribute for `<time>` is `dateTime`.
-- **Missing null guard**: When `slug` does not match any item in `DUMMY_NEWS`, `newsItem` is `undefined`; accessing `newsItem.image` or `newsItem.title` will throw a runtime error.
-- **Missing screenshot assets**: All five image references (`section04-lecture139-001.png` through `-005.png`) may not exist in the `img/` directory.
-- **Missing image files**: News images (e.g. `ai-robot.jpg`, `beaver.jpg`) must exist in `public/images/news/`; otherwise thumbnails and article images will break.
-- **Minor accessibility**: The news list images may need `loading="lazy"` for performance; the detail page `<time>` should use correct `dateTime` format (e.g. `2024-03-01`).
-
 | Issue | Status | Log/Error |
 |---|---|---|
 | Invalid `dataTime` attribute (should be `dateTime`) | ⚠️ Identified | `app/news/[slug]/page.js:14` — HTML `<time>` requires `dateTime` |
