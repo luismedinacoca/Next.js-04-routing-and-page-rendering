@@ -430,6 +430,222 @@ export default function RootLayout({ children }) {
 
 
 
+<br>
+
+## 🔧 139. Lesson 139 — *App Styling & Using Dummy Data*
+
+### 🧠 139.1 Context:
+
+### ⚙️ 139.2 Updating code/theory according the context:
+
+#### 139.2.1
+```jsx
+/* components/main-header.js */
+import Link from "next/link";
+export default function MainHeader() {
+  return (
+    <header id="main-header">
+      <div id="logo">
+        <Link href="/">NextNews</Link>
+      </div>
+      <nav>
+        <ul>
+          <li>
+            <Link href="/news">News</Link>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  );
+}
+```
+
+![simple styling - main-header](../img/section04-lecture139-001.png)
+
+#### 139.2.2
+```jsx
+/* app/layout.js */
+import "./globals.css";
+import MainHeader from "@/components/main-header";
+
+export const metadata = {
+  title: "Next.js Page Routing & Rendering",
+  description: "Learn how to route to different pages.",
+};
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <div id="page">                       {/* 👈🏽 ✅ */}
+          <MainHeader />
+          {children}
+        </div>
+      </body>
+    </html>
+  );
+}
+```
+
+![adding styling - main-header](../img/section04-lecture139-002.png)
+
+#### 139.2.3
+```jsx
+/* app/news/page.js */
+import Link from "next/link";
+
+export default function NewsPage(){
+  return(
+    <>
+      <h1>News Page</h1>
+      <ul className="news-list">                                {/* 👈🏽 ✅ */}
+        <li>
+          <Link href="/news/first-news">First News</Link>
+        </li>
+        <li>
+          <Link href="/news/second-news">Second News</Link>
+        </li>
+        <li>
+          <Link href="/news/third-news">Third News</Link>
+        </li>
+      </ul>
+    </>
+  )
+}
+```
+
+![News Detail Page with style](../img/section04-lecture139-003.png)
+
+#### 139.2.4
+
+[dummy-news file repo](https://github.com/mschwarzmueller/nextjs-complete-guide-course-resources/blob/main/code/03-routing-rendering/04-not-found/dummy-news.js)
+
+```jsx
+/* dummy-news.js */
+export const DUMMY_NEWS = [
+  {
+    id: 'n1',
+    slug: 'will-ai-replace-humans',
+    title: 'Will AI Replace Humans?',
+    image: 'ai-robot.jpg',
+    date: '2021-07-01',
+    content:
+      'Since late 2022 AI is on the rise and therefore many people worry whether AI will replace humans. The answer is not that simple. AI is a tool that can be used to automate tasks, but it can also be used to augment human capabilities. The future is not set in stone, but it is clear that AI will play a big role in the future. The question is how we will use it.',
+  },
+  {
+    id: 'n2',
+    slug: 'beaver-plague',
+    title: 'A Plague of Beavers',
+    image: 'beaver.jpg',
+    date: '2022-05-01',
+    content: 'Beavers are taking over the world. They are building dams everywhere and flooding entire cities. What can we do to stop them?',
+  },
+  {
+    id: 'n3',
+    slug: 'couple-cooking',
+    title: 'Spend more time together!',
+    image: 'couple-cooking.jpg',
+    date: '2024-03-01',
+    content: 'Cooking together is a great way to spend more time with your partner. It is fun and you get to eat something delicious afterwards. What are you waiting for? Get cooking!',
+  },
+  {
+    id: 'n4',
+    slug: 'hiking',
+    title: 'Hiking is the best!',
+    image: 'hiking.jpg',
+    date: '2024-01-01',
+    content: 'Hiking is a great way to get some exercise and enjoy the great outdoors. It is also a great way to clear your mind and reduce stress. So what are you waiting for? Get out there and start hiking!',
+  },
+  {
+    id: 'n5',
+    slug: 'landscape',
+    title: 'The beauty of landscape',
+    image: 'landscape.jpg',
+    date: '2022-07-01',
+    content: 'Landscape photography is a great way to capture the beauty of nature. It is also a great way to get outside and enjoy the great outdoors. So what are you waiting for? Get out there and start taking some pictures!',
+  },
+];
+```
+
+#### 139.2.5
+```jsx
+/* app/news/page.js */
+import Link from "next/link";
+
+import { DUMMY_NEWS } from "@/dummy-news";
+
+export default function NewsPage(){
+  return(
+    <>
+      <h1>News Page</h1>
+      <ul className="news-list">
+        {/* <li>
+          <Link href="/news/first-news">First News</Link>
+        </li>
+        <li>
+          <Link href="/news/second-news">Second News</Link>
+        </li>
+        <li>
+          <Link href="/news/third-news">Third News</Link>
+        </li> */}
+
+        {DUMMY_NEWS.map((newsItem) => (
+          <li key={newsItem.id}>
+            <Link href={`/news/${newsItem.slug}`}>
+              <img 
+                src={`/images/news/${newsItem.image}`}
+                alt={newsItem.title}
+              />
+              <span>{newsItem.title}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </>
+  )
+}
+```
+
+![news Page with images](../img/section04-lecture139-004.png)
+
+#### 139.2.6
+```jsx
+/* app/news/[slug]/page.js */
+import { DUMMY_NEWS } from "@/dummy-news";
+
+export default function NewsDetailPage({ params }){
+  const { slug } = params;
+
+  const newsItem = DUMMY_NEWS.find(newsItem => newsItem.slug === slug);
+
+  return (
+    <article className="news-article">
+      <header>
+        <img src={`/images/news/${newsItem.image}`} alt={`${newsItem.title}`} />
+        <h1>{newsItem.title}</h1>
+        <time dataTime={newsItem.date}>{newsItem.date}</time>
+        <p>{newsItem.content}</p>
+      </header>
+    </article>
+  );
+}
+```
+
+[visit this URL - spend more time together](http://localhost:3000/news/couple-cooking)
+
+![couple-cooking](../img/section04-lecture139-005.png)
+
+### 🐞 139.3 Issues:
+
+| Issue | Status | Log/Error |
+|---|---|---|
+
+### 🧱 139.4 Pending Fixes (TODO)
+
+- [ ]
+
+
+
 
 
 
